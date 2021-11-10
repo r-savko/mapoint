@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/task
+       http://www.springframework.org/schema/task/spring-task.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <task:annotation-driven/>
+    <context:property-placeholder location="classpath:dataBase.properties"/>
+
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+        <property name="url" value="${db.url}"/>
+        <property name="driverClassName" value="${db.driver}"/>
+        <property name="username" value="${db.username}"/>
+        <property name="password" value="${db.password}"/>
+        <property name="initialSize" value="${db.init-size}"/>
+        <property name="maxTotal" value="${db.max_total}"/>
+    </bean>
+
+    <context:component-scan base-package="net.mapoint"/>
+    <tx:annotation-driven/>
+
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="packagesToScan">
+            <list>
+                <value>net.mapoint</value>
+            </list>
+        </property>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQL9Dialect</prop>
+                <prop key="hibernate.show_sql">true</prop>
+                <prop key="hibernate.jdbc.batch_size">50</prop>
+
+                <prop key="hibernate.generate_statistics">true</prop>
+                <!--Configuration Second Level Cache using EhCache  -->
+                <prop key="hibernate.cache.use_second_level_cache">true</prop>
+                <prop key="hibernate.cache.use_query_cache">true</prop>
+                <prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</prop>
+                <prop key="org.hibernate.cache.ehcache.configurationResourceName">/ehcache.xml</prop>
+                <prop key="hibernate.cache.auto_evict_collection_cache">true</prop>
+
+                <prop key="hibernate.search.default.indexmanager">elasticsearch</prop>
+                <prop key="hibernate.search.default.elasticsearch.host">https://search-buns-search-47nywt4hmvigb37bypmcbuypc4.eu-west-1.es.amazonaws.com</prop>
+                <prop key="hibernate.search.default.elasticsearch.index_schema_management_strategy">CREATE</prop>
+                <prop key="hibernate.search.default.elasticsearch.required_index_status">yellow</prop>
+                <prop key="org.hibernate.search.fulltext_query">DEBUG</prop>
+            </props>
+            </property>
+        </bean>
+
+        <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+            <property name="sessionFactory" ref="sessionFactory"/>
+        </bean>
+
+        <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+        <bean id="timeAspect" class="net.mapoint.dao.aop.TimeAspect"/>
+
+    <util:map id="offersTransformers" key-type="java.lang.String" map-class="java.util.HashMap" value-type="java.lang.Integer">
+        <entry key="today" value="0"/>
+        <entry key="week" value="6"/>
+        <entry key="month" value="30"/>
+    </util:map>
+
+
+</beans>

@@ -1,0 +1,35 @@
+apply plugin: 'idea'
+apply plugin: 'java'
+
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+
+    compileJava.options.encoding = 'UTF-8'
+
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'pmd'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    idea {
+        module {
+            excludeDirs += file(".idea")
+            excludeDirs += file("target")
+            excludeDirs += file("build")
+            excludeDirs += file("classes")
+        }
+    }
+
+}

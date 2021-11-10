@@ -1,0 +1,14 @@
+rootProject.name = 'root'
+
+include ':admin'
+include ':client_api'
+include ':common'
+include ':integration'
+
+project(':admin').projectDir = new File(settingsDir, 'admin')
+project(':client_api').projectDir = new File(settingsDir, 'client_api')
+project(':common').projectDir = new File(settingsDir, 'common')
+project(':integration').projectDir = new File(settingsDir, 'integration')
+
+
+
